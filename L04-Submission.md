@@ -45,47 +45,23 @@ https://github.com/WordPress/WordPress
   - Trust Boundaries → Environment + Data (2 required)
   - Data Flows → HTTPS requests, SQL queries (2 core flows detailed)
 
-### Enhanced DFD Explanation
+### DFD Explanation (2 Core Data Flows)
 
-#### **External Interactions (Flows 1-10):**
-1. **User Browser → Load Balancer (HTTPS Request):** Standard page requests with SSL/TLS encryption
-2. **User Browser → CDN (Asset Request):** Static assets (CSS, JS, images) served from global CDN
-3. **User Browser → Load Balancer (Form Submission):** Contact forms, comments, user registrations
-4. **User Browser → Web Server (AJAX Request):** Dynamic content updates without page refresh
-5. **Admin Dashboard → Load Balancer (Admin Login):** Secure authentication to wp-admin panel
-6. **Admin Dashboard → Web Server (Content Creation):** Creating/editing posts, pages, media
-7. **Admin Dashboard → Web Server (Plugin Management):** Installing, updating, configuring plugins
-8. **Admin Dashboard → Web Server (File Upload):** Media uploads, plugin/theme installations
-9. **Plugin Developer → Web Server (Plugin Upload):** Third-party plugin installations
-10. **Plugin Developer → Web Server (Theme Upload):** Custom theme installations
+#### **Data Flow 1: User Request Processing (Flows 1-6)**
+1. **User Browser → Web Server (HTTPS Request):** Modern browsers initiate secure HTTPS connections with SSL/TLS encryption, cookie management, and session storage for standard page requests.
+2. **Web Server → WordPress Core (Process Request):** Apache/Nginx web server routes the request and executes PHP code for page generation and plugin execution.
+3. **WordPress Core → MySQL Database (Query Database):** Application performs SELECT/INSERT/UPDATE operations to retrieve posts, user data, or store new content.
+4. **MySQL Database → WordPress Core (Return Data):** Database returns query results containing the requested content and user information.
+5. **WordPress Core → Web Server (Render HTML):** WordPress processes the data, executes themes and plugins, then renders the final HTML page.
+6. **Web Server → User Browser (HTTPS Response):** Complete rendered page is delivered securely back to the user's browser.
 
-#### **Internal Processing (Flows 11-16):**
-11. **Load Balancer → Web Server (Route Request):** Traffic distribution and SSL termination
-12. **Web Server → WordPress Core (Process Request):** PHP execution and request handling
-13. **Web Server → CDN (Serve Static Assets):** Direct file serving for performance
-14. **WordPress Core → Plugin System (Execute Plugin):** Third-party code execution
-15. **WordPress Core → Theme Engine (Render Theme):** Template processing and styling
-16. **WordPress Core → File Upload Handler (Handle Upload):** Secure file processing
-
-#### **Data Operations (Flows 17-26):**
-17. **WordPress Core → MySQL (Query Data):** Standard CRUD operations for content
-18. **Plugin System → MySQL (Plugin Data):** Custom tables and plugin-specific data
-19. **Theme Engine → MySQL (Theme Settings):** Theme configuration and customizer data
-20. **File Upload Handler → MySQL (File Metadata):** Attachment records and media library
-21. **File Upload Handler → File System (Store Files):** Physical file storage with security scanning
-22. **Plugin System → File System (Plugin Files):** Plugin code and asset storage
-23. **Theme Engine → File System (Theme Assets):** Theme files, CSS, JavaScript storage
-24. **WordPress Core → Cache System (Cache Data):** Performance optimization and session data
-25. **Plugin System → Cache System (Plugin Cache):** Plugin-specific caching mechanisms
-26. **Theme Engine → Cache System (Theme Cache):** Rendered template fragments
-
-#### **Response Flows (Flows 27-32):**
-27. **MySQL → WordPress Core (Return Data):** Database query results
-28. **File System → Web Server (Serve Files):** Direct media file delivery
-29. **Cache System → WordPress Core (Return Cached Data):** Fast response from cache
-30. **WordPress Core → Web Server (Rendered HTML):** Final processed page content
-31. **Web Server → User Browser (HTTPS Response):** Complete page delivery
-32. **Web Server → Admin Dashboard (Admin Response):** Dashboard interface updates
+#### **Data Flow 2: Admin Operations (Flows 7-12)**
+7. **Admin Dashboard → Web Server (Admin Login):** WordPress administrators authenticate through the wp-admin panel with elevated privileges.
+8. **Web Server → WordPress Core (Authenticate User):** WordPress validates admin credentials and manages secure session tokens for authenticated users.
+9. **WordPress Core → MySQL Database (Admin Database Query):** System queries user permissions, roles, and admin-specific configuration data.
+10. **MySQL Database → WordPress Core (Admin Data Response):** Database returns admin dashboard data including user management, content statistics, and system settings.
+11. **WordPress Core → Web Server (Admin Interface):** WordPress renders the admin dashboard with appropriate content management tools and controls.
+12. **Web Server → Admin Dashboard (Secure Response):** Complete admin interface is delivered securely to the administrator's browser.
 
 ### DFD Diagram
 
@@ -94,80 +70,33 @@ graph TD
     %% External Entities
     User[("🌐 User Browser<br/>(Chrome/Firefox/Safari)<br/>• SSL/TLS Encryption<br/>• Cookie Management<br/>• Session Storage")]
     Admin[("👑 Admin Dashboard<br/>(WordPress Admin Panel)<br/>• Elevated Privileges<br/>• Content Management<br/>• Plugin Configuration")]
-    PluginDev[("🔧 Plugin Developer<br/>(External Entity)<br/>• Third-party Code<br/>• Theme Uploads<br/>• Custom Functions")]
     
     %% Trust Boundary 1: Environment
     subgraph TB1 ["🌐 Environment Boundary: Internet to Web Server"]
-        LoadBalancer["⚖️ Load Balancer<br/>(Process)<br/>• Traffic Distribution<br/>• SSL Termination"]
         WebServer["🌐 Web Server<br/>(Apache/Nginx)<br/>• Static File Serving<br/>• Request Routing<br/>• SSL/TLS Handling"]
-        CDN["📡 Content Delivery Network<br/>(Process)<br/>• Asset Caching<br/>• Global Distribution"]
     end
     
-    %% Trust Boundary 2: Application
-    subgraph TB2 ["🏗️ Application Boundary: Web Server to WordPress"]
+    %% Trust Boundary 2: Data
+    subgraph TB2 ["🗄️ Data Boundary: Application to Database"]
         WordPressApp["⚙️ WordPress Core<br/>(Process)<br/>• Request Processing<br/>• Plugin Execution<br/>• Theme Rendering"]
-        PluginSystem["🔌 Plugin System<br/>(Process)<br/>• Third-party Extensions<br/>• Custom Functionality<br/>• Security Validation"]
-        ThemeEngine["🎨 Theme Engine<br/>(Process)<br/>• Template Rendering<br/>• Asset Management<br/>• Custom Styling"]
-        FileUpload["📁 File Upload Handler<br/>(Process)<br/>• Media Processing<br/>• Security Scanning<br/>• Storage Management"]
-    end
-    
-    %% Trust Boundary 3: Data
-    subgraph TB3 ["🗄️ Data Boundary: Application to Storage"]
         MySQL[("🗃️ MySQL Database<br/>(Data Store)<br/>• Posts & Pages<br/>• User Accounts<br/>• Plugin Data<br/>• Configuration")]
-        FileSystem[("📂 File System<br/>(Data Store)<br/>• Uploaded Media<br/>• Plugin Files<br/>• Theme Assets<br/>• Logs")]
-        Cache[("⚡ Cache System<br/>(Redis/Memcached)<br/>• Session Data<br/>• Query Results<br/>• Page Fragments")]
     end
     
-    %% Data Flows - User Interactions
-    User -->|"1. HTTPS Request<br/>(GET /page)"| LoadBalancer
-    User -->|"2. Asset Request<br/>(CSS/JS/Images)"| CDN
-    User -->|"3. Form Submission<br/>(POST /contact)"| LoadBalancer
-    User -->|"4. AJAX Request<br/>(Dynamic Content)"| WebServer
+    %% Core Data Flow 1: User Request
+    User -->|"1. HTTPS Request<br/>(GET/POST with SSL/TLS)"| WebServer
+    WebServer -->|"2. Process Request<br/>(PHP Execution)"| WordPressApp
+    WordPressApp -->|"3. Query Database<br/>(SELECT/INSERT/UPDATE)"| MySQL
+    MySQL -->|"4. Return Data<br/>(Query Results)"| WordPressApp
+    WordPressApp -->|"5. Render HTML<br/>(Final Page)"| WebServer
+    WebServer -->|"6. HTTPS Response<br/>(Complete Page)"| User
     
-    %% Data Flows - Admin Interactions
-    Admin -->|"5. Admin Login<br/>(POST /wp-admin)"| LoadBalancer
-    Admin -->|"6. Content Creation<br/>(POST /wp-admin/post-new)"| WebServer
-    Admin -->|"7. Plugin Management<br/>(POST /wp-admin/plugins)"| WebServer
-    Admin -->|"8. File Upload<br/>(POST /wp-admin/media-new)"| WebServer
-    
-    %% Data Flows - Developer Interactions
-    PluginDev -->|"9. Plugin Upload<br/>(ZIP File Upload)"| WebServer
-    PluginDev -->|"10. Theme Upload<br/>(Theme Package)"| WebServer
-    
-    %% Internal Processing Flows
-    LoadBalancer -->|"11. Route Request<br/>(Load Balancing)"| WebServer
-    WebServer -->|"12. Process Request<br/>(PHP Execution)"| WordPressApp
-    WebServer -->|"13. Serve Static Assets<br/>(Direct File Access)"| CDN
-    
-    %% WordPress Internal Flows
-    WordPressApp -->|"14. Execute Plugin<br/>(Plugin Logic)"| PluginSystem
-    WordPressApp -->|"15. Render Theme<br/>(Template Processing)"| ThemeEngine
-    WordPressApp -->|"16. Handle Upload<br/>(File Processing)"| FileUpload
-    
-    %% Database Flows
-    WordPressApp -->|"17. Query Data<br/>(SELECT/INSERT/UPDATE)"| MySQL
-    PluginSystem -->|"18. Plugin Data<br/>(Custom Tables)"| MySQL
-    ThemeEngine -->|"19. Theme Settings<br/>(Configuration)"| MySQL
-    FileUpload -->|"20. File Metadata<br/>(Attachment Data)"| MySQL
-    
-    %% File System Flows
-    FileUpload -->|"21. Store Files<br/>(Media Storage)"| FileSystem
-    PluginSystem -->|"22. Plugin Files<br/>(Code Storage)"| FileSystem
-    ThemeEngine -->|"23. Theme Assets<br/>(CSS/JS/Images)"| FileSystem
-    
-    %% Cache Flows
-    WordPressApp -->|"24. Cache Data<br/>(Performance)"| Cache
-    PluginSystem -->|"25. Plugin Cache<br/>(Temporary Data)"| Cache
-    ThemeEngine -->|"26. Theme Cache<br/>(Rendered Fragments)"| Cache
-    
-    %% Response Flows
-    MySQL -->|"27. Return Data<br/>(Query Results)"| WordPressApp
-    FileSystem -->|"28. Serve Files<br/>(Media Delivery)"| WebServer
-    Cache -->|"29. Return Cached Data<br/>(Fast Response)"| WordPressApp
-    
-    WordPressApp -->|"30. Rendered HTML<br/>(Final Page)"| WebServer
-    WebServer -->|"31. HTTPS Response<br/>(Complete Page)"| User
-    WebServer -->|"32. Admin Response<br/>(Dashboard)"| Admin
+    %% Core Data Flow 2: Admin Operations
+    Admin -->|"7. Admin Login<br/>(POST /wp-admin)"| WebServer
+    WebServer -->|"8. Authenticate User<br/>(Session Management)"| WordPressApp
+    WordPressApp -->|"9. Admin Database Query<br/>(User Permissions)"| MySQL
+    MySQL -->|"10. Admin Data Response<br/>(Dashboard Data)"| WordPressApp
+    WordPressApp -->|"11. Admin Interface<br/>(Dashboard Rendering)"| WebServer
+    WebServer -->|"12. Admin Dashboard<br/>(Secure Response)"| Admin
     
     %% Styling
     classDef external fill:#e1f5fe,stroke:#2196f3,stroke-width:2px
@@ -175,10 +104,10 @@ graph TD
     classDef datastore fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
     classDef trustboundary fill:#fff3e0,stroke:#ff9800,stroke-width:3px,stroke-dasharray: 5 5
     
-    class User,Admin,PluginDev external
-    class LoadBalancer,WebServer,CDN,WordPressApp,PluginSystem,ThemeEngine,FileUpload process
-    class MySQL,FileSystem,Cache datastore
-    class TB1,TB2,TB3 trustboundary
+    class User,Admin external
+    class WebServer,WordPressApp process
+    class MySQL datastore
+    class TB1,TB2 trustboundary
 ```
 
 ### Draw.io Construction Guide
@@ -200,21 +129,15 @@ graph TD
 ### Root Threat
 **"Compromise of WordPress Website Integrity and User Data"**
 
-### Enhanced Vulnerabilities
+### Vulnerabilities (3 Required)
 1. **Weak Authentication** – Weak passwords, missing 2FA, or session hijacking allow unauthorized access.
 2. **SQL Injection** – Improperly sanitized input in plugins/themes allows database manipulation.
 3. **Cross-Site Scripting (XSS)** – User input not properly escaped allows malicious script injection.
-4. **File Upload Vulnerabilities** – Insufficient file type validation allows malicious file uploads.
-5. **Plugin/Theme Vulnerabilities** – Third-party code with security flaws or backdoors.
-6. **Insecure Direct Object References** – Insufficient access controls on files and database objects.
 
-### Enhanced Countermeasures
+### Countermeasures (3 Required)
 1. **Strong Password Policy & 2FA** – Enforce complex passwords, MFA, and secure session management.
 2. **Parameterized Queries & ORM Use** – Prevent SQLi by using prepared statements and ORM frameworks.
 3. **Input Sanitization & CSP Headers** – Prevent XSS through proper escaping and Content Security Policy.
-4. **File Upload Security** – Implement file type validation, malware scanning, and secure storage.
-5. **Plugin/Theme Security** – Code reviews, vulnerability scanning, and trusted repository usage.
-6. **Access Control & Authorization** – Implement proper RBAC and object-level access controls.
 
 ### TTD Diagram
 
@@ -223,59 +146,35 @@ graph TD
     %% Root Threat
     Root["🔥 Compromise of WordPress<br/>Website Integrity and User Data<br/>(Root Threat)"]
     
-    %% Level 1 - Enhanced Vulnerabilities
-    WeakAuth["🔐 Weak Authentication<br/>(Vulnerability)"]
-    SQLInj["💉 SQL Injection<br/>(Vulnerability)"]
-    XSS["🌐 Cross-Site Scripting (XSS)<br/>(Vulnerability)"]
-    FileUpload["📁 File Upload Vulnerabilities<br/>(Vulnerability)"]
-    PluginVuln["🔌 Plugin/Theme Vulnerabilities<br/>(Vulnerability)"]
-    IDOR["🔓 Insecure Direct Object References<br/>(Vulnerability)"]
+    %% Level 1 - Vulnerabilities (3 Required)
+    WeakAuth["🔐 Weak Authentication<br/>(Vulnerability)<br/>• Weak passwords<br/>• Missing 2FA<br/>• Session hijacking"]
+    SQLInj["💉 SQL Injection<br/>(Vulnerability)<br/>• Unsanitized input<br/>• Dynamic queries<br/>• Plugin vulnerabilities"]
+    XSS["🌐 Cross-Site Scripting (XSS)<br/>(Vulnerability)<br/>• Unescaped output<br/>• Comment injection<br/>• Stored/Reflected XSS"]
     
     %% Level 2 - Specific Attack Methods
     BruteForce["💥 Brute Force Attacks<br/>(Attack Method)"]
-    SessionHijack["🍪 Session Hijacking<br/>(Attack Method)"]
     PluginSQLi["🔌 Plugin SQL Injection<br/>(Attack Method)"]
     CommentXSS["💬 Comment XSS Injection<br/>(Attack Method)"]
-    MaliciousUpload["☠️ Malicious File Upload<br/>(Attack Method)"]
-    PluginBackdoor["🚪 Plugin Backdoor<br/>(Attack Method)"]
-    FileAccess["📂 Unauthorized File Access<br/>(Attack Method)"]
     
-    %% Enhanced Countermeasures
-    MFA["🔒 Multi-Factor Authentication<br/>(Countermeasure)"]
-    SessionMgmt["🛡️ Secure Session Management<br/>(Countermeasure)"]
-    ParamQueries["📝 Parameterized Queries<br/>(Countermeasure)"]
-    InputSanit["🧹 Input Sanitization<br/>(Countermeasure)"]
-    CSP["🛡️ Content Security Policy<br/>(Countermeasure)"]
-    FileValidation["✅ File Upload Security<br/>(Countermeasure)"]
-    PluginSecurity["🔍 Plugin/Theme Security<br/>(Countermeasure)"]
-    AccessControl["🔐 Access Control & Authorization<br/>(Countermeasure)"]
+    %% Countermeasures (3 Required)
+    MFA["🔒 Multi-Factor Authentication<br/>(Countermeasure)<br/>• Complex passwords<br/>• 2FA enforcement<br/>• Session management"]
+    ParamQueries["📝 Parameterized Queries<br/>(Countermeasure)<br/>• Prepared statements<br/>• ORM frameworks<br/>• Input validation"]
+    InputSanit["🧹 Input Sanitization<br/>(Countermeasure)<br/>• Output escaping<br/>• Content Security Policy<br/>• XSS prevention"]
     
     %% Connections - Root to Vulnerabilities
     Root --> WeakAuth
     Root --> SQLInj
     Root --> XSS
-    Root --> FileUpload
-    Root --> PluginVuln
-    Root --> IDOR
     
     %% Connections - Vulnerabilities to Attack Methods
     WeakAuth --> BruteForce
-    WeakAuth --> SessionHijack
     SQLInj --> PluginSQLi
     XSS --> CommentXSS
-    FileUpload --> MaliciousUpload
-    PluginVuln --> PluginBackdoor
-    IDOR --> FileAccess
     
     %% Countermeasures mapped to vulnerabilities
     MFA -.->|"Mitigates"| WeakAuth
-    SessionMgmt -.->|"Mitigates"| WeakAuth
     ParamQueries -.->|"Mitigates"| SQLInj
     InputSanit -.->|"Mitigates"| XSS
-    CSP -.->|"Mitigates"| XSS
-    FileValidation -.->|"Mitigates"| FileUpload
-    PluginSecurity -.->|"Mitigates"| PluginVuln
-    AccessControl -.->|"Mitigates"| IDOR
     
     %% Styling
     classDef root fill:#ffebee,stroke:#f44336,stroke-width:4px
@@ -284,34 +183,28 @@ graph TD
     classDef countermeasure fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
     
     class Root root
-    class WeakAuth,SQLInj,XSS,FileUpload,PluginVuln,IDOR vulnerability
-    class BruteForce,SessionHijack,PluginSQLi,CommentXSS,MaliciousUpload,PluginBackdoor,FileAccess attack
-    class MFA,SessionMgmt,ParamQueries,InputSanit,CSP,FileValidation,PluginSecurity,AccessControl countermeasure
+    class WeakAuth,SQLInj,XSS vulnerability
+    class BruteForce,PluginSQLi,CommentXSS attack
+    class MFA,ParamQueries,InputSanit countermeasure
 ```
 
-### Enhanced TTD Structure for draw.io
+### TTD Structure for draw.io (Meeting Requirements)
 - **Root Node:** Compromise of WordPress Website Integrity and User Data
-- **Primary Vulnerability Branches:**
-  - Weak Authentication (Brute Force, Session Hijacking)
-  - SQL Injection (Plugin SQL Injection)
-  - Cross-Site Scripting (Comment XSS Injection)
-  - File Upload Vulnerabilities (Malicious File Upload)
-  - Plugin/Theme Vulnerabilities (Plugin Backdoor)
-  - Insecure Direct Object References (Unauthorized File Access)
-- **Countermeasure Mapping:**
-  - MFA + Secure Session Management → Weak Authentication
+- **Primary Vulnerability Branches (3 Required):**
+  - Weak Authentication → Brute Force Attacks
+  - SQL Injection → Plugin SQL Injection  
+  - Cross-Site Scripting (XSS) → Comment XSS Injection
+- **Countermeasure Mapping (3 Required):**
+  - Multi-Factor Authentication → Weak Authentication
   - Parameterized Queries → SQL Injection
-  - Input Sanitization + CSP → XSS
-  - File Upload Security → File Upload Vulnerabilities
-  - Plugin/Theme Security → Plugin/Theme Vulnerabilities
-  - Access Control & Authorization → IDOR
+  - Input Sanitization → XSS
 
-### Enhanced Rationale
-- **6 vulnerabilities and 8 countermeasures** (exceeds minimum requirements)
-- **Uses comprehensive threat tree structure** (root → vulnerabilities → attack methods → countermeasures)
-- **Follows OWASP Top 10 and WordPress-specific security recommendations**
-- **Includes modern attack vectors** like session hijacking, plugin backdoors, and file upload attacks
-- **Provides layered defense** with multiple countermeasures per vulnerability type
+### Rationale (Meeting Exact Requirements)
+- **3 vulnerabilities and 3 countermeasures** (meets minimum requirements exactly)
+- **Uses proper threat tree structure** (root → vulnerabilities → attack methods → countermeasures)
+- **Follows OWASP Top 10 web application security risks**
+- **Covers most common WordPress attack vectors** including authentication bypass, database manipulation, and script injection
+- **Provides direct 1:1 countermeasure mapping** for each vulnerability type
 
 ---
 
@@ -430,10 +323,10 @@ graph TB
 | Requirement | Status |
 |-------------|--------|
 | Chose open-source software and gave link | ✅ WordPress |
-| DFD includes ≥2 data flows | ✅ **32 total flows** (significantly exceeds requirement) |
-| DFD includes ≥2 boundaries (environment + data) | ✅ **3 boundaries** (Environment, Application, Data) |
+| DFD includes ≥2 data flows | ✅ **2 detailed flows** (meets requirement) |
+| DFD includes ≥2 boundaries (environment + data) | ✅ **2 boundaries** (Environment, Data) |
 | DFD uses correct Threat Modeling symbols | ✅ External Entity, Process, Data Store, Trust Boundary |
-| TTD includes ≥3 vulnerabilities & ≥3 countermeasures | ✅ **6 vulnerabilities & 8 countermeasures** |
+| TTD includes ≥3 vulnerabilities & ≥3 countermeasures | ✅ **3 vulnerabilities & 3 countermeasures** |
 | UMD includes ≥3 use & ≥3 misuse cases, with "threaten/mitigate" links | ✅ Done |
 | All diagrams labeled and OWASP-based | ✅ |
 | All diagrams can be built in draw.io Threat Modeling template | ✅ |

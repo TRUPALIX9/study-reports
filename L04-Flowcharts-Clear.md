@@ -56,47 +56,23 @@
 └─────────────────┘    └─────────────────┘
 ```
 
-**Enhanced Data Flows (32 total):**
+**Core Data Flows (2 Required):**
 
-**External Interactions (10 flows):**
-1. User → Load Balancer: HTTPS Request (GET /page)
-2. User → CDN: Asset Request (CSS/JS/Images)
-3. User → Load Balancer: Form Submission (POST /contact)
-4. User → Web Server: AJAX Request (Dynamic Content)
-5. Admin → Load Balancer: Admin Login (POST /wp-admin)
-6. Admin → Web Server: Content Creation (POST /wp-admin/post-new)
-7. Admin → Web Server: Plugin Management (POST /wp-admin/plugins)
-8. Admin → Web Server: File Upload (POST /wp-admin/media-new)
-9. Plugin Dev → Web Server: Plugin Upload (ZIP File Upload)
-10. Plugin Dev → Web Server: Theme Upload (Theme Package)
+**Data Flow 1: User Request Processing (6 steps):**
+1. User Browser → Web Server: HTTPS Request (GET/POST with SSL/TLS)
+2. Web Server → WordPress Core: Process Request (PHP Execution)
+3. WordPress Core → MySQL Database: Query Database (SELECT/INSERT/UPDATE)
+4. MySQL Database → WordPress Core: Return Data (Query Results)
+5. WordPress Core → Web Server: Render HTML (Final Page)
+6. Web Server → User Browser: HTTPS Response (Complete Page)
 
-**Internal Processing (6 flows):**
-11. Load Balancer → Web Server: Route Request (Load Balancing)
-12. Web Server → WordPress Core: Process Request (PHP Execution)
-13. Web Server → CDN: Serve Static Assets (Direct File Access)
-14. WordPress Core → Plugin System: Execute Plugin (Plugin Logic)
-15. WordPress Core → Theme Engine: Render Theme (Template Processing)
-16. WordPress Core → File Upload Handler: Handle Upload (File Processing)
-
-**Data Operations (10 flows):**
-17. WordPress Core → MySQL: Query Data (SELECT/INSERT/UPDATE)
-18. Plugin System → MySQL: Plugin Data (Custom Tables)
-19. Theme Engine → MySQL: Theme Settings (Configuration)
-20. File Upload Handler → MySQL: File Metadata (Attachment Data)
-21. File Upload Handler → File System: Store Files (Media Storage)
-22. Plugin System → File System: Plugin Files (Code Storage)
-23. Theme Engine → File System: Theme Assets (CSS/JS/Images)
-24. WordPress Core → Cache System: Cache Data (Performance)
-25. Plugin System → Cache System: Plugin Cache (Temporary Data)
-26. Theme Engine → Cache System: Theme Cache (Rendered Fragments)
-
-**Response Flows (6 flows):**
-27. MySQL → WordPress Core: Return Data (Query Results)
-28. File System → Web Server: Serve Files (Media Delivery)
-29. Cache System → WordPress Core: Return Cached Data (Fast Response)
-30. WordPress Core → Web Server: Rendered HTML (Final Page)
-31. Web Server → User Browser: HTTPS Response (Complete Page)
-32. Web Server → Admin Dashboard: Admin Response (Dashboard)
+**Data Flow 2: Admin Operations (6 steps):**
+7. Admin Dashboard → Web Server: Admin Login (POST /wp-admin)
+8. Web Server → WordPress Core: Authenticate User (Session Management)
+9. WordPress Core → MySQL Database: Admin Database Query (User Permissions)
+10. MySQL Database → WordPress Core: Admin Data Response (Dashboard Data)
+11. WordPress Core → Web Server: Admin Interface (Dashboard Rendering)
+12. Web Server → Admin Dashboard: Admin Dashboard (Secure Response)
 
 ---
 
@@ -138,23 +114,15 @@
                                                  └─────────────────┘
 ```
 
-**Enhanced Vulnerabilities (6):**
+**Vulnerabilities (3 Required):**
 - Weak Authentication
 - SQL Injection  
 - Cross-Site Scripting (XSS)
-- File Upload Vulnerabilities
-- Plugin/Theme Vulnerabilities
-- Insecure Direct Object References
 
-**Enhanced Countermeasures (8):**
+**Countermeasures (3 Required):**
 - Multi-Factor Authentication
-- Secure Session Management
 - Parameterized Queries
 - Input Sanitization
-- Content Security Policy
-- File Upload Security
-- Plugin/Theme Security
-- Access Control & Authorization
 
 ---
 
