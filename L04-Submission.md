@@ -53,8 +53,8 @@ https://github.com/WordPress/WordPress
 ```mermaid
 graph TD
     %% External Entities
-    User[("User Browser<br/>(External Entity)")]
-    Admin[("Admin Dashboard<br/>(External Entity)")]
+    User[("🌐 User Browser<br/>(Chrome/Firefox/Safari)<br/>External Entity")]
+    Admin[("👑 Admin Dashboard<br/>(WordPress Admin Panel)<br/>External Entity")]
     
     %% Trust Boundary 1: Environment
     subgraph TB1 ["🌐 Environment Boundary: Internet to Web Server"]
