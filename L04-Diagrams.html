@@ -119,36 +119,36 @@
             <div class="diagram-container">
                 <div class="mermaid">
 graph TD
-    %% External Entities
-    User[("🌐 User Browser<br/>(Chrome/Firefox/Safari)<br/>• SSL/TLS Encryption<br/>• Cookie Management<br/>• Session Storage")]
-    Admin[("👑 Admin Dashboard<br/>(WordPress Admin Panel)<br/>• Elevated Privileges<br/>• Content Management<br/>• Plugin Configuration")]
+    %% External Entities - Top Level
+    User[("User Browser<br/>Chrome/Firefox/Safari<br/>SSL/TLS Encryption<br/>Cookie Management<br/>Session Storage")]
+    Admin[("Admin Dashboard<br/>WordPress Admin Panel<br/>Elevated Privileges<br/>Content Management<br/>Plugin Configuration")]
     
-    %% Trust Boundary 1: Environment
-    subgraph TB1 ["🌐 Environment Boundary: Internet to Web Server"]
-        WebServer["🌐 Web Server<br/>(Apache/Nginx)<br/>• Static File Serving<br/>• Request Routing<br/>• SSL/TLS Handling"]
+    %% Trust Boundary 1: Environment - Middle Level
+    subgraph TB1 ["Environment Boundary: Internet to Web Server"]
+        WebServer["Web Server<br/>Apache/Nginx<br/>Static File Serving<br/>Request Routing<br/>SSL/TLS Handling"]
     end
     
-    %% Trust Boundary 2: Data
-    subgraph TB2 ["🗄️ Data Boundary: Application to Database"]
-        WordPressApp["⚙️ WordPress Core<br/>(Process)<br/>• Request Processing<br/>• Plugin Execution<br/>• Theme Rendering"]
-        MySQL[("🗃️ MySQL Database<br/>(Data Store)<br/>• Posts & Pages<br/>• User Accounts<br/>• Plugin Data<br/>• Configuration")]
+    %% Trust Boundary 2: Data - Bottom Level
+    subgraph TB2 ["Data Boundary: Application to Database"]
+        WordPressApp["WordPress Core<br/>Request Processing<br/>Plugin Execution<br/>Theme Rendering"]
+        MySQL[("MySQL Database<br/>Posts & Pages<br/>User Accounts<br/>Plugin Data<br/>Configuration")]
     end
     
-    %% Core Data Flow 1: User Request
-    User -->|"1. HTTPS Request<br/>(GET/POST with SSL/TLS)"| WebServer
-    WebServer -->|"2. Process Request<br/>(PHP Execution)"| WordPressApp
-    WordPressApp -->|"3. Query Database<br/>(SELECT/INSERT/UPDATE)"| MySQL
-    MySQL -->|"4. Return Data<br/>(Query Results)"| WordPressApp
-    WordPressApp -->|"5. Render HTML<br/>(Final Page)"| WebServer
-    WebServer -->|"6. HTTPS Response<br/>(Complete Page)"| User
+    %% Data Flow 1: User Request (Top to Bottom)
+    User -->|"1. HTTPS Request"| WebServer
+    WebServer -->|"2. Process Request"| WordPressApp
+    WordPressApp -->|"3. Query Database"| MySQL
+    MySQL -->|"4. Return Data"| WordPressApp
+    WordPressApp -->|"5. Render HTML"| WebServer
+    WebServer -->|"6. HTTPS Response"| User
     
-    %% Core Data Flow 2: Admin Operations
-    Admin -->|"7. Admin Login<br/>(POST /wp-admin)"| WebServer
-    WebServer -->|"8. Authenticate User<br/>(Session Management)"| WordPressApp
-    WordPressApp -->|"9. Admin Database Query<br/>(User Permissions)"| MySQL
-    MySQL -->|"10. Admin Data Response<br/>(Dashboard Data)"| WordPressApp
-    WordPressApp -->|"11. Admin Interface<br/>(Dashboard Rendering)"| WebServer
-    WebServer -->|"12. Admin Dashboard<br/>(Secure Response)"| Admin
+    %% Data Flow 2: Admin Operations (Top to Bottom)
+    Admin -->|"7. Admin Login"| WebServer
+    WebServer -->|"8. Authenticate User"| WordPressApp
+    WordPressApp -->|"9. Admin Database Query"| MySQL
+    MySQL -->|"10. Admin Data Response"| WordPressApp
+    WordPressApp -->|"11. Admin Interface"| WebServer
+    WebServer -->|"12. Admin Dashboard"| Admin
     
     %% Styling
     classDef external fill:#e1f5fe,stroke:#2196f3,stroke-width:2px
@@ -186,23 +186,23 @@ graph TD
             <div class="diagram-container">
                 <div class="mermaid">
 graph TD
-    %% Root Threat
-    Root["🔥 Compromise of WordPress<br/>Website Integrity and User Data<br/>(Root Threat)"]
+    %% Root Threat - Top Level
+    Root["Compromise of WordPress<br/>Website Integrity and User Data"]
     
-    %% Level 1 - Vulnerabilities (3 Required)
-    WeakAuth["🔐 Weak Authentication<br/>(Vulnerability)<br/>• Weak passwords<br/>• Missing 2FA<br/>• Session hijacking"]
-    SQLInj["💉 SQL Injection<br/>(Vulnerability)<br/>• Unsanitized input<br/>• Dynamic queries<br/>• Plugin vulnerabilities"]
-    XSS["🌐 Cross-Site Scripting (XSS)<br/>(Vulnerability)<br/>• Unescaped output<br/>• Comment injection<br/>• Stored/Reflected XSS"]
+    %% Level 1 - Vulnerabilities - Second Level
+    WeakAuth["Weak Authentication<br/>Weak passwords<br/>Missing 2FA<br/>Session hijacking"]
+    SQLInj["SQL Injection<br/>Unsanitized input<br/>Dynamic queries<br/>Plugin vulnerabilities"]
+    XSS["Cross-Site Scripting XSS<br/>Unescaped output<br/>Comment injection<br/>Stored/Reflected XSS"]
     
-    %% Level 2 - Specific Attack Methods
-    BruteForce["💥 Brute Force Attacks<br/>(Attack Method)"]
-    PluginSQLi["🔌 Plugin SQL Injection<br/>(Attack Method)"]
-    CommentXSS["💬 Comment XSS Injection<br/>(Attack Method)"]
+    %% Level 2 - Attack Methods - Third Level
+    BruteForce["Brute Force Attacks"]
+    PluginSQLi["Plugin SQL Injection"]
+    CommentXSS["Comment XSS Injection"]
     
-    %% Countermeasures (3 Required)
-    MFA["🔒 Multi-Factor Authentication<br/>(Countermeasure)<br/>• Complex passwords<br/>• 2FA enforcement<br/>• Session management"]
-    ParamQueries["📝 Parameterized Queries<br/>(Countermeasure)<br/>• Prepared statements<br/>• ORM frameworks<br/>• Input validation"]
-    InputSanit["🧹 Input Sanitization<br/>(Countermeasure)<br/>• Output escaping<br/>• Content Security Policy<br/>• XSS prevention"]
+    %% Countermeasures - Bottom Level
+    MFA["Multi-Factor Authentication<br/>Complex passwords<br/>2FA enforcement<br/>Session management"]
+    ParamQueries["Parameterized Queries<br/>Prepared statements<br/>ORM frameworks<br/>Input validation"]
+    InputSanit["Input Sanitization<br/>Output escaping<br/>Content Security Policy<br/>XSS prevention"]
     
     %% Connections - Root to Vulnerabilities
     Root --> WeakAuth
@@ -253,53 +253,46 @@ graph TD
 
             <div class="diagram-container">
                 <div class="mermaid">
-graph TB
-    %% Actors
-    User[("👤 User<br/>(Actor)")]
-    Admin[("👑 Admin<br/>(Actor)")]
-    Attacker[("⚠️ Malicious Attacker<br/>(Actor)")]
+graph LR
+    %% Actors - Left Side
+    User[("User")]
+    Admin[("Admin")]
+    Attacker[("Malicious Attacker")]
     
-    %% Use Cases
-    UserLogin["🔐 User Logs Into Account<br/>(Use Case)"]
-    AdminPost["✍️ Admin Publishes a Post<br/>(Use Case)"]
-    UserComment["💬 User Comments on a Post<br/>(Use Case)"]
+    %% Use Cases - Center Left
+    UserLogin["User Logs Into Account"]
+    AdminPost["Admin Publishes a Post"]
+    UserComment["User Comments on a Post"]
     
-    %% Misuse Cases
-    CredentialStuffing["💀 Credential Stuffing Attack<br/>(Misuse Case)"]
-    MaliciousUpload["☠️ Malicious File Upload<br/>(Misuse Case)"]
-    CommentXSS["🕷️ Comment XSS Injection<br/>(Misuse Case)"]
+    %% Misuse Cases - Center Right
+    CredentialStuffing["Credential Stuffing Attack"]
+    MaliciousUpload["Malicious File Upload"]
+    CommentXSS["Comment XSS Injection"]
     
-    %% Mitigations
-    RateLimit["🚦 Rate Limiting & MFA<br/>(Mitigation)"]
-    FileValidation["✅ File Type Validation<br/>(Mitigation)"]
-    InputSanit["🧹 Input Sanitization<br/>(Mitigation)"]
+    %% Mitigations - Right Side
+    RateLimit["Rate Limiting & MFA"]
+    FileValidation["File Type Validation"]
+    InputSanit["Input Sanitization"]
     
-    %% Legitimate Actor Connections
+    %% Left to Right Flow - Legitimate Connections
     User --> UserLogin
     User --> UserComment
     Admin --> AdminPost
     
-    %% Threaten Connections (Red dashed lines)
-    CredentialStuffing -.->|"🚫 THREATENS"| UserLogin
-    MaliciousUpload -.->|"🚫 THREATENS"| AdminPost
-    CommentXSS -.->|"🚫 THREATENS"| UserComment
-    
-    %% Attacker to Misuse Cases
+    %% Left to Right Flow - Attack Connections
     Attacker --> CredentialStuffing
     Attacker --> MaliciousUpload
     Attacker --> CommentXSS
     
-    %% Mitigation Connections (Green solid lines)
-    RateLimit -->|"✅ MITIGATES"| CredentialStuffing
-    FileValidation -->|"✅ MITIGATES"| MaliciousUpload
-    InputSanit -->|"✅ MITIGATES"| CommentXSS
+    %% Left to Right Flow - Threaten Connections
+    CredentialStuffing -->|"THREATENS"| UserLogin
+    MaliciousUpload -->|"THREATENS"| AdminPost
+    CommentXSS -->|"THREATENS"| UserComment
     
-    %% Legend
-    subgraph Legend ["📋 Legend"]
-        Threaten["🚫 THREATENS<br/>(Dashed Red Line)"]
-        Mitigates["✅ MITIGATES<br/>(Solid Green Line)"]
-        Normal["➡️ NORMAL FLOW<br/>(Solid Blue Line)"]
-    end
+    %% Left to Right Flow - Mitigation Connections
+    RateLimit -->|"MITIGATES"| CredentialStuffing
+    FileValidation -->|"MITIGATES"| MaliciousUpload
+    InputSanit -->|"MITIGATES"| CommentXSS
     
     %% Styling
     classDef actor fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
